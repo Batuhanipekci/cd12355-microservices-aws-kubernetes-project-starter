@@ -1,0 +1,20 @@
+Local run with postgres being deployed on minikube and Flask app is on local computer
+
+0. Install minikube and kubectl
+    Install psql and dependencies for postgres
+1. minikube start --driver=docker
+eval $(minikube docker-env)
+2. Install Postgresql via yaml files
+    kubectl apply -f pvc.yaml
+    kubectl apply -f pv.yaml
+    kubectl apply -f postgresql-deployment.yaml
+4. Run port-forwarding on postgres
+    kubectl apply -f postgresql-service.yaml
+    kubectl port-forward service/postgresql-service 5433:5432 &
+5. Run scripts
+    PGPASSWORD="mypassword" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/1_create_
+tables.sql
+    PGPASSWORD="mypassword" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/2_seed_users.sql
+    PGPASSWORD="mypassword" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/3_seed_tokens.sql
+5. Install and run Flask application via yaml files
+    kubectl apply -f deployment-local

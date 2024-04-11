@@ -4,9 +4,16 @@ Local run with postgres being deployed on minikube and Flask app is on local com
     Install postgres using helm
     Install psql and dependencies for postgres
 1. minikube start --driver=docker
-2. Export the Postgres password:
-    export POSTGRES_PASSWORD=$(kubectl get secret --namespace default <SERVICE_NAME>-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+eval $(minikube docker-env)
+2. Install postgres and export the Postgres password:
+    helm install pgdemo bitnami/postgresql
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace default pgdemo-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
 3. Port forward
-    kubectl port-forward --namespace default svc/<SERVICE_NAME>-postgresql 5432:5432
+    kubectl port-forward --namespace default svc/pgdemo-postgresql 5432:5432
 4. In a new terminal, run sql scripts
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < db/1_create_tables.sql
+    PGPASSWORD="mypassword" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/1_create_
+tables.sql
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < db/2_seed_users.sql
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < db/3_seed_tokens.sql
 5. In a new terminal, run the flask application. The endpoints will work as long as the port-forward is still active in the other terminal.
