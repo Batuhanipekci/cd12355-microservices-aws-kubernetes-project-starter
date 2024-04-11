@@ -1,0 +1,12 @@
+Local run with postgres being deployed on minikube and Flask app is on local computer
+
+0. Install minikube, kubectl, helm
+    Install postgres using helm
+    Install psql and dependencies for postgres
+1. minikube start --driver=docker
+2. Export the Postgres password:
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace default <SERVICE_NAME>-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+3. Port forward
+    kubectl port-forward --namespace default svc/<SERVICE_NAME>-postgresql 5432:5432
+4. In a new terminal, run sql scripts
+5. In a new terminal, run the flask application. The endpoints will work as long as the port-forward is still active in the other terminal.
